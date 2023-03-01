@@ -23,6 +23,7 @@ void fitness();
 void inicializaPopulacao();
 void ordenaPopulacao();
 void selecaoAleatoria();
+void selecaoRoleta();
 void selecaoTorneio();
 
 int main(){
@@ -33,7 +34,8 @@ int main(){
     fitness();
     ordenaPopulacao();
     //selecaoAleatoria();
-    selecaoTorneio();
+    //selecaoTorneio();
+    selecaoRoleta();
 
     return 0;
 }
@@ -246,6 +248,64 @@ void selecaoAleatoria(){
 
         if (cont == TAMANHOTABULEIRO)
             printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
+    } while (cont == TAMANHOTABULEIRO);
+}
+
+/*
+    ---------------
+    selecaoRoleta()
+    ---------------
+    
+    Representa proporcionalmente os individuos na roleta de acordo com seu fitness.
+    Gira a roleta e seleciona um pai.
+    O precesso se repete até que exista dois pais diferentes entre si.
+*/
+void selecaoRoleta(){
+    int i, j, k;
+    int somaFitness = 0;
+    int numeroSorteado, fitnessAcumulado, cont;
+
+    // Soma os fitness da população
+    for (i=0; i<TAMANHOPOPULACAO; i++)
+        somaFitness += fitnessDaPopulacao[i];
+
+    printf ("-> Soma dos fitness: %d\n\n", somaFitness); 
+
+    do{
+        cont = 0;
+        for (k=0; k<QUANTIDADEPAIS; k++){
+            // Roda a roleta (sorteia um numero aleatorio)
+            numeroSorteado = (rand()%somaFitness);
+            printf("NUMERO SORTEADO: %d\n", numeroSorteado);
+
+            // Seleciona um pai
+            fitnessAcumulado = 0;
+            for (i=0; (i<TAMANHOPOPULACAO) && (fitnessAcumulado <= numeroSorteado); i++){
+                fitnessAcumulado += fitnessDaPopulacao[i];
+                if (fitnessAcumulado > numeroSorteado){
+                    for (j=0; j<TAMANHOTABULEIRO; j++)
+                        pais[k][j] = populacaoAtual[i][j];
+                }
+            }
+            
+            // Mostra o pai sorteado
+            printf ("Pai %d: ", k+1);
+            for (i=0; i<TAMANHOTABULEIRO; i++){
+                printf ("%d ", pais[k][i]);
+            }
+            printf ("\n");
+        }
+        // Verifica se os pais são iguais
+        if (k>1){
+            for (i=0; i<TAMANHOTABULEIRO; i++){
+                if (pais[0][i] == pais[1][i])
+                    cont++;
+            }
+        }
+
+        if (cont == TAMANHOTABULEIRO)
+            printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
+
     } while (cont == TAMANHOTABULEIRO);
 }
 
