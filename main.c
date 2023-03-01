@@ -1,13 +1,21 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 // Defines
 #define TAMANHOPOPULACAO 10
 #define TAMANHOTABULEIRO 8
+#define QUANTIDADETORNEIOS 4
+#define QUANTIDADEINDIVIDUOSPORTORNEIO 4
+#define QUANTIDADEPAIS 2
 
 // Variáveis globais
 int **populacaoAtual;   
 int **proximaPopulacao;
 int *fitnessDaPopulacao;
+int **individuosTorneio;
+int **pais;
+int *fitnessTorneio;
 
 // Funções
 void alocaMemoria();
@@ -15,6 +23,7 @@ void fitness();
 void inicializaPopulacao();
 void ordenaPopulacao();
 void selecaoAleatoria();
+void selecaoTorneio();
 
 int main(){
 
@@ -23,7 +32,8 @@ int main(){
     inicializaPopulacao();
     fitness();
     ordenaPopulacao();
-    selecaoAleatoria();
+    //selecaoAleatoria();
+    selecaoTorneio();
 
     return 0;
 }
@@ -237,5 +247,76 @@ void selecaoAleatoria(){
         if (cont == TAMANHOTABULEIRO)
             printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
     } while (cont == TAMANHOTABULEIRO);
+}
+
+/*
+    ----------------
+    selecaoTorneio()
+    ----------------
+
+    São selecionados N individuos distintos entre si para participar do torneio.
+    O individuo com maior aptidão entre os selecionados é escolhido para ser um pai.
+    O precesso se repete até que exista dois pais diferentes entre si.
+*/
+void selecaoTorneio(){
+    int i, j, k;
+    int individuo[QUANTIDADEINDIVIDUOSPORTORNEIO];
+    int cont1;
+
+    do{
+        cont1 = 0;
+        for (k=0; k<QUANTIDADEPAIS; k++){
+            // Seleciona individuos para o torneio
+            for (i=0; i < QUANTIDADEINDIVIDUOSPORTORNEIO; i++){
+                individuo[i] = (rand()%TAMANHOPOPULACAO);
+
+                // Verifica se o individuo já foi selecionado (ta errado)
+                for (j=0; j<=i; j++){
+                    if (individuo[i] == individuo[j]){
+                        individuo[i] = (rand()%TAMANHOPOPULACAO);
+                        j = 0;
+                    }
+                }
+
+                // opcao 2 da errado pq nao verifica se o novo numero sorteado é igual aos anteriores
+                //for (j=0; j/,i; j++){
+                    //while (individuo[i] == individuo[j])
+                        //individuo[i] = (rand()%TAMANHOPOPULACAO);
+                //} 
+
+                fitnessTorneio[i] = fitnessDaPopulacao[individuo[i]];
+                printf("%d: individuo %d selecionado: ", i+1, individuo[i]+1);
+                for (j=0; j<TAMANHOTABULEIRO; j++){
+                    individuosTorneio[i][j] = populacaoAtual[individuo[i]][j];
+                    printf ("%d ", individuosTorneio[i][j]);
+                }
+                printf("\n");
+                printf("Fitnes do individuo: %d\n\n", fitnessTorneio[i]);
+            }
+            printf("\n");
+
+            // Ordenar os individuos do torneio
+            ordenaTorneio();
+
+            // Seleciona o individuo com maior fitness para ser o pai
+            printf("Pai %d selecionado: ", k+1);
+            for (i=0; i<TAMANHOTABULEIRO; i++){
+                pais[k][i] = individuosTorneio[QUANTIDADEINDIVIDUOSPORTORNEIO-1][i];
+                printf("%d ", pais[k][i]);
+            }
+            printf("\n\n");
+        }
+
+        // Verifica se os pais sao iguais
+        if (k>1){
+            for (i=0; i<TAMANHOTABULEIRO; i++){
+                if (pais[0][i] == pais[1][i])
+                    cont1++;
+            }
+        }
+
+        if (cont1 == TAMANHOTABULEIRO)
+            printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
+    } while (cont1 == TAMANHOTABULEIRO);
 }
 
