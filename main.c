@@ -22,6 +22,7 @@ void alocaMemoria();
 void fitness();
 void inicializaPopulacao();
 void ordenaPopulacao();
+void ordenaTorneio();
 void selecaoAleatoria();
 void selecaoRoleta();
 void selecaoTorneio();
@@ -210,6 +211,43 @@ void ordenaPopulacao(){
         for (j=0; j<TAMANHOTABULEIRO; j++)
             printf ("%d ", populacaoAtual[i][j]);
         printf ("Fitness: %d\n", fitnessDaPopulacao[i]);
+    }
+    printf("\n");
+}
+
+/*
+    ---------------
+    ordenaTorneio()
+    ---------------
+
+    Ordena os individuos do torneio de acordo com seu fitness.
+    A ordenação é feita em ordem crescente.
+*/
+void ordenaTorneio(){
+    int i, j, k;
+    int auxiliar;
+    int auxiliarA[TAMANHOTABULEIRO];  
+
+    for (i=0; i<QUANTIDADEINDIVIDUOSPORTORNEIO; i++){
+        auxiliar = fitnessTorneio[i];
+        for (k=0; k<TAMANHOTABULEIRO; k++)
+            auxiliarA[k] = individuosTorneio[i][k];
+        
+        for (j=i; (j>0) && auxiliar<fitnessTorneio[j-1]; j--){
+            fitnessTorneio[j] = fitnessTorneio[j-1];
+            for (k=0; k<TAMANHOTABULEIRO; k++)
+                individuosTorneio[j][k] = individuosTorneio[j-1][k];
+        }
+        fitnessTorneio[j] = auxiliar;
+        for (k=0; k<TAMANHOTABULEIRO; k++)
+            individuosTorneio[j][k] = auxiliarA[k];
+    }
+
+    printf ("Torneio ordenado pelo fitness: \n");
+    for (i=0; i<QUANTIDADEINDIVIDUOSPORTORNEIO; i++){
+        for (j=0; j<TAMANHOTABULEIRO; j++)
+            printf ("%d ", individuosTorneio[i][j]);
+        printf ("\n");
     }
     printf("\n");
 }
