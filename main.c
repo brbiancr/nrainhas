@@ -59,11 +59,21 @@ void alocaMemoria(){
 
     populacaoAtual = (int**) malloc(sizeof(int*) * TAMANHOPOPULACAO);
     proximaPopulacao = (int**) malloc(sizeof(int*) * TAMANHOPOPULACAO);
+    fitnessDaPopulacao = (int*) malloc(sizeof(int) * TAMANHOPOPULACAO);
+    individuosTorneio = (int**) malloc(sizeof(int*) * QUANTIDADEINDIVIDUOSPORTORNEIO);
+    pais = (int**) malloc(sizeof(int*) * QUANTIDADEPAIS);
+    fitnessTorneio = (int*) malloc(sizeof(int) * QUANTIDADEINDIVIDUOSPORTORNEIO);
 
     for (i=0; i<TAMANHOPOPULACAO; i++){
         populacaoAtual[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
         proximaPopulacao[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
     }
+
+    for (i=0; i<QUANTIDADEINDIVIDUOSPORTORNEIO; i++)
+        individuosTorneio[i] = (int*) malloc(sizeof(int*) * TAMANHOTABULEIRO);
+
+    for (i=0; i<QUANTIDADEPAIS; i++)
+        pais[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
 }
 
 /*
