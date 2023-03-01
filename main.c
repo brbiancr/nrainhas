@@ -7,6 +7,7 @@
 // Variáveis globais
 int **populacaoAtual;   
 int **proximaPopulacao;
+int *fitnessDaPopulacao;
 
 // Funções
 void alocaMemoria();
@@ -17,7 +18,8 @@ int main(){
     alocaMemoria();
     srand(time(NULL));
     inicializaPopulacao();
-    
+    fitness();
+
     return 0;
 }
 
@@ -44,6 +46,97 @@ void alocaMemoria(){
         populacaoAtual[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
         proximaPopulacao[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
     }
+}
+
+/*
+    ---------
+    fitness()
+    ---------
+
+    Avalia a aptidão de cada individuo da população.
+*/
+void fitness(){
+    int i, j, k, l, m;
+    int linhaDaRainha, fitnessRainha, colisao;
+    int auxiliar1, auxiliar2;
+    int tabuleiro[TAMANHOTABULEIRO][TAMANHOTABULEIRO];
+
+    for (i=0; i<TAMANHOPOPULACAO; i++){
+        fitnessDaPopulacao[i]= 0 ;
+        printf ("--Individuo %d\n\n", i+1);
+        // Posiciona e mostra na tela as rainhas no tabuleiro
+        for (j=0; j<TAMANHOTABULEIRO; j++){
+            for (k=0; k<TAMANHOTABULEIRO; k++){
+                linhaDaRainha = populacaoAtual[i][k];
+                if (j == (linhaDaRainha-1)){
+                    tabuleiro[j][k] = 1;
+                }else{
+                    tabuleiro[j][k] = 0;
+                }
+                //printf ("%d ", tabuleiro[j][k]);
+            }
+            //printf ("\n");
+        } 
+
+        for (j=0; j<TAMANHOTABULEIRO; j++){
+            for (k=0; k<TAMANHOTABULEIRO; k++){
+                colisao = 0;
+                if (tabuleiro[j][k]==1){
+                    for (l=0; l<TAMANHOTABULEIRO; l++){
+                        for (m=0; m<TAMANHOTABULEIRO; m++){
+                            // Verifica se há colisao na linha
+                            if (((j==l) && (m!=k)) && (tabuleiro[l][m]==1))   
+                                colisao++;
+
+                            // Verifica se a rainha esta na diagonal principal, caso esteja, verifica se há colisão na diagonal principal
+                            if (((j==k) && (l==m)) && (k!=m) && (tabuleiro[l][m]==1))
+                                colisao++;                            
+                            
+                            // Verifica se a rainha esta na diagonal secundária, caso esteja, verifica se há colisão na diagonal secundária
+                            if (((j+k)==(TAMANHOTABULEIRO-1)) && ((l+m)==(TAMANHOTABULEIRO-1)) && (j!=l) && (tabuleiro[l][m]==1))
+                                colisao++;
+
+                            // Verifica colisão na paralela a diagonal secundária
+                            if (((l+m)==(j+k)) && ((j!=l) && (k!=m)) && (j!=k) && ((l+m)!=(TAMANHOTABULEIRO-1)) && (tabuleiro[l][m]==1))
+                                colisao++;
+                        }
+                    }
+
+                    // Verifica colisao na paralela a diagonal principal
+                    if (j!=k || (j+k != TAMANHOTABULEIRO-1)){
+                    // Verificando abaixo da rainha
+                        auxiliar1 = j+1;
+                        auxiliar2 = k+1;
+                        while (auxiliar1 < TAMANHOTABULEIRO && auxiliar2 < TAMANHOTABULEIRO){
+                            if (tabuleiro[auxiliar1][auxiliar2] == 1)
+                                colisao++;
+                            auxiliar1++;
+                            auxiliar2++;
+                            
+                        }
+                        // Verificando acima da rainha
+                        auxiliar1 = j-1;
+                        auxiliar2 = k-1;
+                        while (auxiliar1 >= 0 && auxiliar2 >= 0){
+                            if (tabuleiro[auxiliar1][auxiliar2] == 1)
+                                colisao++;
+                            auxiliar1--;
+                            auxiliar2--;
+                        }
+                    }
+
+                    (colisao > 0) ? (fitnessRainha = 0) : (fitnessRainha = 1);
+                
+                    //printf ("Fitness da rainha: %d\n", fitnessRainha);
+
+                    fitnessDaPopulacao[i] += fitnessRainha;
+                }
+            }
+
+        }  
+        printf("Fitness: %d\n\n", fitnessDaPopulacao[i]);
+    }
+    printf("\n");
 }
 
 /*
