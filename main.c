@@ -10,10 +10,15 @@ int **proximaPopulacao;
 
 // Funções
 void alocaMemoria();
+void inicializaPopulacao();
 
 int main(){
+
     alocaMemoria();
-return 0;
+    srand(time(NULL));
+    inicializaPopulacao();
+    
+    return 0;
 }
 
 /*
@@ -41,3 +46,23 @@ void alocaMemoria(){
     }
 }
 
+/*
+    ---------------------
+    inicializaPopulacao()
+    ---------------------
+
+    Inicializa de forma aleatória a população inicial.
+*/
+void inicializaPopulacao(){
+    int i, j;
+
+    printf ("***POPULACAO***\n");
+    for (i=0; i<TAMANHOPOPULACAO; i++){
+        for (j=0; j<TAMANHOTABULEIRO; j++){
+            populacaoAtual[i][j] = (rand()%TAMANHOTABULEIRO) + 1;
+            printf("%d ", populacaoAtual[i][j]);     // Mostra a populacao na tela 
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
