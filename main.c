@@ -14,6 +14,7 @@ void alocaMemoria();
 void fitness();
 void inicializaPopulacao();
 void ordenaPopulacao();
+void selecaoAleatoria();
 
 int main(){
 
@@ -22,6 +23,7 @@ int main(){
     inicializaPopulacao();
     fitness();
     ordenaPopulacao();
+    selecaoAleatoria();
 
     return 0;
 }
@@ -198,5 +200,42 @@ void ordenaPopulacao(){
         printf ("Fitness: %d\n", fitnessDaPopulacao[i]);
     }
     printf("\n");
+}
+
+/*
+    ------------------
+    selecaoAleatoria()
+    ------------------
+
+    Seleciona de forma aleatória os dois individuos pais.
+    O processo ocorre até que ambos os pais sejam diferentes entre si.
+*/
+void selecaoAleatoria(){
+    int i, j;
+    int individuo;
+    int cont = 0;
+
+    do{
+        for (i=0; i<QUANTIDADEPAIS; i++){
+            individuo = (rand()%TAMANHOPOPULACAO);
+            printf ("Individuo escolhido para pai %d: individuo %d\n",i+1, individuo+1);
+            for (j=0; j<TAMANHOTABULEIRO; j++){
+                pais[i][j] = populacaoAtual[individuo][j];
+                printf("%d ", pais[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+
+        if (i>1){
+            for (i=0; i<TAMANHOTABULEIRO; i++){
+                if (pais[0][i] == pais[1][i])
+                    cont++;
+            }
+        }
+
+        if (cont == TAMANHOTABULEIRO)
+            printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
+    } while (cont == TAMANHOTABULEIRO);
 }
 
