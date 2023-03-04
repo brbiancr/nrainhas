@@ -16,7 +16,7 @@ int *fitnessDaPopulacao;
 int **individuosTorneio;
 int **pais;
 int *fitnessTorneio;
-int **tabuleiro
+int **tabuleiro;
 
 // Funções
 void alocaMemoria();
