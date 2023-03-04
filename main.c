@@ -16,11 +16,13 @@ int *fitnessDaPopulacao;
 int **individuosTorneio;
 int **pais;
 int *fitnessTorneio;
+int **tabuleiro
 
 // Funções
 void alocaMemoria();
 void fitness();
 void inicializaPopulacao();
+void mostraTabueliro();
 void ordenaPopulacao();
 void ordenaTorneio();
 void selecaoAleatoria();
@@ -36,7 +38,7 @@ int main(){
     ordenaPopulacao();
     //selecaoAleatoria();
     //selecaoTorneio();
-    selecaoRoleta();
+    //selecaoRoleta();
 
     return 0;
 }
@@ -63,6 +65,7 @@ void alocaMemoria(){
     individuosTorneio = (int**) malloc(sizeof(int*) * QUANTIDADEINDIVIDUOSPORTORNEIO);
     pais = (int**) malloc(sizeof(int*) * QUANTIDADEPAIS);
     fitnessTorneio = (int*) malloc(sizeof(int) * QUANTIDADEINDIVIDUOSPORTORNEIO);
+    tabuleiro = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
 
     for (i=0; i<TAMANHOPOPULACAO; i++){
         populacaoAtual[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
@@ -74,6 +77,9 @@ void alocaMemoria(){
 
     for (i=0; i<QUANTIDADEPAIS; i++)
         pais[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
+
+    for (i=0; i<TAMANHOTABULEIRO; i++)
+        tabuleiro[i] = malloc(sizeof(int) * TAMANHOTABULEIRO);
 }
 
 /*
@@ -87,7 +93,6 @@ void fitness(){
     int i, j, k, l, m;
     int linhaDaRainha, fitnessRainha, colisao;
     int auxiliar1, auxiliar2;
-    int tabuleiro[TAMANHOTABULEIRO][TAMANHOTABULEIRO];
 
     for (i=0; i<TAMANHOPOPULACAO; i++){
         fitnessDaPopulacao[i]= 0 ;
@@ -101,10 +106,10 @@ void fitness(){
                 }else{
                     tabuleiro[j][k] = 0;
                 }
-                //printf ("%d ", tabuleiro[j][k]);
             }
-            //printf ("\n");
         } 
+
+        mostraTabuleiro();
 
         for (j=0; j<TAMANHOTABULEIRO; j++){
             for (k=0; k<TAMANHOTABULEIRO; k++){
@@ -186,6 +191,25 @@ void inicializaPopulacao(){
         printf("\n");
     }
     printf("\n");
+}
+
+/*
+    -----------------
+    mostraTabuleiro()
+    -----------------
+
+    Mostra na tela o tabuleiro com as rainhas posicionadas
+    0 indica posicao vazia
+    1 indica rainha
+*/
+void mostraTabuleiro(){
+    int i, j;
+
+    for (i=0; i<TAMANHOTABULEIRO; i++){
+        for (j=0; j<TAMANHOTABULEIRO; j++)
+            printf("%d ", tabuleiro[i][j]);
+        printf("\n");
+    }
 }
 
 /*
