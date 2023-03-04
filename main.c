@@ -25,6 +25,7 @@ void inicializaPopulacao();
 void mostraTabueliro();
 void ordenaPopulacao();
 void ordenaTorneio();
+void posicionaRainhas();
 void selecaoAleatoria();
 void selecaoRoleta();
 void selecaoTorneio();
@@ -97,17 +98,8 @@ void fitness(){
     for (i=0; i<TAMANHOPOPULACAO; i++){
         fitnessDaPopulacao[i]= 0 ;
         printf ("--Individuo %d\n\n", i+1);
-        // Posiciona e mostra na tela as rainhas no tabuleiro
-        for (j=0; j<TAMANHOTABULEIRO; j++){
-            for (k=0; k<TAMANHOTABULEIRO; k++){
-                linhaDaRainha = populacaoAtual[i][k];
-                if (j == (linhaDaRainha-1)){
-                    tabuleiro[j][k] = 1;
-                }else{
-                    tabuleiro[j][k] = 0;
-                }
-            }
-        } 
+        
+        posicionaRainhas(i, linhaDaRainha);
 
         mostraTabuleiro();
 
@@ -284,6 +276,29 @@ void ordenaTorneio(){
         printf ("\n");
     }
     printf("\n");
+}
+
+/*
+    ------------------
+    posicionaRainhas()
+    ------------------
+
+    Posiciona as rainhas no tabuleiro
+    0 indica posição vazia
+    1 indica Rainhas
+*/
+void posicionaRainhas(int individuo, int linhaDaRainha){
+    int i, j;
+
+    for (i=0; i<TAMANHOTABULEIRO; i++){
+        for (j=0; j<TAMANHOTABULEIRO; j++){
+            linhaDaRainha = populacaoAtual[individuo][j];
+            if (i == (linhaDaRainha-1))
+                tabuleiro[i][j] = 1;
+            else
+                tabuleiro[i][j] = 0;
+        }
+    }
 }
 
 /*
