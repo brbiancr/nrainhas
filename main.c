@@ -38,7 +38,7 @@ int main(){
     fitness();
     ordenaPopulacao();
     //selecaoAleatoria();
-    //selecaoTorneio();
+    selecaoTorneio();
     //selecaoRoleta();
 
     return 0;
@@ -358,42 +358,39 @@ void selecaoRoleta(){
 
     printf ("-> Soma dos fitness: %d\n\n", somaFitness); 
 
-    do{
-        cont = 0;
-        for (k=0; k<QUANTIDADEPAIS; k++){
-            // Roda a roleta (sorteia um numero aleatorio)
-            numeroSorteado = (rand()%somaFitness);
-            printf("NUMERO SORTEADO: %d\n", numeroSorteado);
+    cont = 0;
+    for (k=0; k<QUANTIDADEPAIS; k++){
+        // Roda a roleta (sorteia um numero aleatorio)
+        numeroSorteado = (rand()%somaFitness);
+        printf("NUMERO SORTEADO: %d\n", numeroSorteado);
 
-            // Seleciona um pai
-            fitnessAcumulado = 0;
-            for (i=0; (i<TAMANHOPOPULACAO) && (fitnessAcumulado <= numeroSorteado); i++){
-                fitnessAcumulado += fitnessDaPopulacao[i];
-                if (fitnessAcumulado > numeroSorteado){
-                    for (j=0; j<TAMANHOTABULEIRO; j++)
-                        pais[k][j] = populacaoAtual[i][j];
-                }
+        // Seleciona um pai
+        fitnessAcumulado = 0;
+        for (i=0; (i<TAMANHOPOPULACAO) && (fitnessAcumulado <= numeroSorteado); i++){
+            fitnessAcumulado += fitnessDaPopulacao[i];
+            if (fitnessAcumulado > numeroSorteado){
+                for (j=0; j<TAMANHOTABULEIRO; j++)
+                    pais[k][j] = populacaoAtual[i][j];
             }
+        }
             
-            // Mostra o pai sorteado
-            printf ("Pai %d: ", k+1);
-            for (i=0; i<TAMANHOTABULEIRO; i++){
-                printf ("%d ", pais[k][i]);
-            }
-            printf ("\n");
+        // Mostra o pai sorteado
+        printf ("Pai %d: ", k+1);
+        for (i=0; i<TAMANHOTABULEIRO; i++){
+            printf ("%d ", pais[k][i]);
         }
-        // Verifica se os pais são iguais
-        if (k>1){
-            for (i=0; i<TAMANHOTABULEIRO; i++){
-                if (pais[0][i] == pais[1][i])
-                    cont++;
-            }
+        printf ("\n");
+    }
+    // Verifica se os pais são iguais
+    if (k>1){
+        for (i=0; i<TAMANHOTABULEIRO; i++){
+            if (pais[0][i] == pais[1][i])
+                cont++;
         }
+    }
 
-        if (cont == TAMANHOTABULEIRO)
-            printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
-
-    } while (cont == TAMANHOTABULEIRO);
+    if (cont == TAMANHOTABULEIRO)
+        printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
 }
 
 /*
@@ -410,60 +407,65 @@ void selecaoTorneio(){
     int individuo[QUANTIDADEINDIVIDUOSPORTORNEIO];
     int cont1;
 
-    do{
-        cont1 = 0;
-        for (k=0; k<QUANTIDADEPAIS; k++){
-            // Seleciona individuos para o torneio
-            for (i=0; i < QUANTIDADEINDIVIDUOSPORTORNEIO; i++){
-                individuo[i] = (rand()%TAMANHOPOPULACAO);
+    cont1 = 0;
+    for (k=0; k<QUANTIDADEPAIS; k++){
+        // Seleciona individuos para o torneio
+        for (i=0; i < QUANTIDADEINDIVIDUOSPORTORNEIO; i++){
+            individuo[i] = (rand()%TAMANHOPOPULACAO);
 
-                // Verifica se o individuo já foi selecionado (ta errado)
-                for (j=0; j<=i; j++){
-                    if (individuo[i] == individuo[j]){
-                        individuo[i] = (rand()%TAMANHOPOPULACAO);
-                        j = 0;
-                    }
+            // Verifica se o individuo já foi selecionado (ta errado)
+            for (j=0; j<i; j++){
+                if (individuo[i] == individuo[j]){
+                    individuo[i] = (rand()%TAMANHOPOPULACAO);
+                    j = 0;
                 }
+            }
 
-                // opcao 2 da errado pq nao verifica se o novo numero sorteado é igual aos anteriores
-                //for (j=0; j/,i; j++){
-                    //while (individuo[i] == individuo[j])
-                        //individuo[i] = (rand()%TAMANHOPOPULACAO);
-                //} 
+            // opcao 2 da errado pq nao verifica se o novo numero sorteado é igual aos anteriores
+            //for (j=0; j/,i; j++){
+                //while (individuo[i] == individuo[j])
+                    //individuo[i] = (rand()%TAMANHOPOPULACAO);
+            //} 
 
-                fitnessTorneio[i] = fitnessDaPopulacao[individuo[i]];
-                printf("%d: individuo %d selecionado: ", i+1, individuo[i]+1);
-                for (j=0; j<TAMANHOTABULEIRO; j++){
-                    individuosTorneio[i][j] = populacaoAtual[individuo[i]][j];
-                    printf ("%d ", individuosTorneio[i][j]);
-                }
-                printf("\n");
-                printf("Fitnes do individuo: %d\n\n", fitnessTorneio[i]);
+            fitnessTorneio[i] = fitnessDaPopulacao[individuo[i]];
+            printf("%d: individuo %d selecionado: ", i+1, individuo[i]+1);
+            for (j=0; j<TAMANHOTABULEIRO; j++){
+                individuosTorneio[i][j] = populacaoAtual[individuo[i]][j];
+                printf ("%d ", individuosTorneio[i][j]);
             }
             printf("\n");
-
-            // Ordenar os individuos do torneio
-            ordenaTorneio();
-
-            // Seleciona o individuo com maior fitness para ser o pai
-            printf("Pai %d selecionado: ", k+1);
-            for (i=0; i<TAMANHOTABULEIRO; i++){
-                pais[k][i] = individuosTorneio[QUANTIDADEINDIVIDUOSPORTORNEIO-1][i];
-                printf("%d ", pais[k][i]);
-            }
-            printf("\n\n");
+            printf("Fitnes do individuo: %d\n\n", fitnessTorneio[i]);
         }
+        printf("\n");
 
-        // Verifica se os pais sao iguais
-        if (k>1){
-            for (i=0; i<TAMANHOTABULEIRO; i++){
-                if (pais[0][i] == pais[1][i])
-                    cont1++;
-            }
+        // Ordenar os individuos do torneio
+        ordenaTorneio();
+
+        // Seleciona o individuo com maior fitness para ser o pai
+        printf("Pai %d selecionado: ", k+1);
+        for (i=0; i<TAMANHOTABULEIRO; i++){
+            pais[k][i] = individuosTorneio[QUANTIDADEINDIVIDUOSPORTORNEIO-1][i];
+            printf("%d ", pais[k][i]);
         }
+        printf("\n\n");
+    }
 
-        if (cont1 == TAMANHOTABULEIRO)
-            printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
-    } while (cont1 == TAMANHOTABULEIRO);
+    // Verifica se os pais sao iguais
+    if (k>1){
+        for (i=0; i<TAMANHOTABULEIRO; i++){
+            if (pais[0][i] == pais[1][i])
+                cont1++;
+        }
+    }
+
+    if (cont1 == TAMANHOTABULEIRO){
+        printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
+        printf ("Pai 2: ");
+        for (i=0; i<TAMANHOTABULEIRO; i++){
+            pais[1][i] = individuosTorneio[QUANTIDADEINDIVIDUOSPORTORNEIO-2][i];
+            printf ("%d ", pais[1][i]);
+        }
+        printf ("\n");
+    }
 }
 
