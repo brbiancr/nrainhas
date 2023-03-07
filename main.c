@@ -3,14 +3,14 @@
 #include <time.h>
 
 // Defines
-#define TAMANHOPOPULACAO 10
+#define TAMANHOPOPULACAO 5
 #define TAMANHOTABULEIRO 8
 #define QUANTIDADETORNEIOS 4
 #define QUANTIDADEINDIVIDUOSPORTORNEIO 4
 #define QUANTIDADEPAIS 2
 
 // Variáveis globais
-int **populacaoAtual;   
+int **populacaoAtual;
 int **proximaPopulacao;
 int *fitnessDaPopulacao;
 int **individuosTorneio;
@@ -38,8 +38,8 @@ int main(){
     fitness();
     ordenaPopulacao();
     //selecaoAleatoria();
-    selecaoTorneio();
-    //selecaoRoleta();
+    //selecaoTorneio();
+    selecaoRoleta();
 
     return 0;
 }
@@ -98,7 +98,7 @@ void fitness(){
     for (i=0; i<TAMANHOPOPULACAO; i++){
         fitnessDaPopulacao[i]= 0 ;
         printf ("--Individuo %d\n\n", i+1);
-        
+
         posicionaRainhas(i, linhaDaRainha);
 
         mostraTabuleiro();
@@ -110,13 +110,13 @@ void fitness(){
                     for (l=0; l<TAMANHOTABULEIRO; l++){
                         for (m=0; m<TAMANHOTABULEIRO; m++){
                             // Verifica se há colisao na linha
-                            if (((j==l) && (m!=k)) && (tabuleiro[l][m]==1))   
+                            if (((j==l) && (m!=k)) && (tabuleiro[l][m]==1))
                                 colisao++;
 
                             // Verifica se a rainha esta na diagonal principal, caso esteja, verifica se há colisão na diagonal principal
                             if (((j==k) && (l==m)) && (k!=m) && (tabuleiro[l][m]==1))
-                                colisao++;                            
-                            
+                                colisao++;
+
                             // Verifica se a rainha esta na diagonal secundária, caso esteja, verifica se há colisão na diagonal secundária
                             if (((j+k)==(TAMANHOTABULEIRO-1)) && ((l+m)==(TAMANHOTABULEIRO-1)) && (j!=l) && (tabuleiro[l][m]==1))
                                 colisao++;
@@ -137,7 +137,7 @@ void fitness(){
                                 colisao++;
                             auxiliar1++;
                             auxiliar2++;
-                            
+
                         }
                         // Verificando acima da rainha
                         auxiliar1 = j-1;
@@ -151,14 +151,14 @@ void fitness(){
                     }
 
                     (colisao > 0) ? (fitnessRainha = 0) : (fitnessRainha = 1);
-                
+
                     //printf ("Fitness da rainha: %d\n", fitnessRainha);
 
                     fitnessDaPopulacao[i] += fitnessRainha;
                 }
             }
 
-        }  
+        }
         printf("Fitness: %d\n\n", fitnessDaPopulacao[i]);
     }
     printf("\n");
@@ -170,15 +170,33 @@ void fitness(){
     ---------------------
 
     Inicializa de forma aleatória a população inicial.
+    A população inicial não deve ter individuos iguais.
 */
 void inicializaPopulacao(){
-    int i, j;
+    int i, j, k, l;
+    int cont;
 
     printf ("***POPULACAO***\n");
     for (i=0; i<TAMANHOPOPULACAO; i++){
         for (j=0; j<TAMANHOTABULEIRO; j++){
-            populacaoAtual[i][j] = (rand()%TAMANHOTABULEIRO) + 1;
-            printf("%d ", populacaoAtual[i][j]);     // Mostra a populacao na tela 
+            populacaoAtual[i][j] = rand()%TAMANHOTABULEIRO;
+
+            do{
+                cont = 0;
+                if (i>0){
+                    for (k=0; k<i; k++){
+                        for (l=0; l<TAMANHOTABULEIRO; l++){
+                            if (populacaoAtual[i][j] == populacaoAtual[k][l])
+                                cont++;
+                        }
+                    }
+
+                }
+                for (k=0; k<TAMANHOTABULEIRO; k++)
+                    populacaoAtual[i][k] = rand()%TAMANHOTABULEIRO;
+            } while(cont == TAMANHOTABULEIRO);
+
+            printf("%d ", populacaoAtual[i][j]);     // Mostra a populacao na tela
         }
         printf("\n");
     }
@@ -215,13 +233,13 @@ void mostraTabuleiro(){
 void ordenaPopulacao(){
     int i, j, k;
     int auxiliar;
-    int auxiliarA[TAMANHOTABULEIRO];  
+    int auxiliarA[TAMANHOTABULEIRO];
 
     for (i=0; i<TAMANHOPOPULACAO; i++){
         auxiliar = fitnessDaPopulacao[i];
         for (k=0; k<TAMANHOTABULEIRO; k++)
             auxiliarA[k] = populacaoAtual[i][k];
-        
+
         for (j=i; (j>0) && auxiliar<fitnessDaPopulacao[j-1]; j--){
             fitnessDaPopulacao[j] = fitnessDaPopulacao[j-1];
             for (k=0; k<TAMANHOTABULEIRO; k++)
@@ -252,13 +270,13 @@ void ordenaPopulacao(){
 void ordenaTorneio(){
     int i, j, k;
     int auxiliar;
-    int auxiliarA[TAMANHOTABULEIRO];  
+    int auxiliarA[TAMANHOTABULEIRO];
 
     for (i=0; i<QUANTIDADEINDIVIDUOSPORTORNEIO; i++){
         auxiliar = fitnessTorneio[i];
         for (k=0; k<TAMANHOTABULEIRO; k++)
             auxiliarA[k] = individuosTorneio[i][k];
-        
+
         for (j=i; (j>0) && auxiliar<fitnessTorneio[j-1]; j--){
             fitnessTorneio[j] = fitnessTorneio[j-1];
             for (k=0; k<TAMANHOTABULEIRO; k++)
@@ -342,7 +360,7 @@ void selecaoAleatoria(){
     ---------------
     selecaoRoleta()
     ---------------
-    
+
     Representa proporcionalmente os individuos na roleta de acordo com seu fitness.
     Gira a roleta e seleciona um pai.
     O precesso se repete até que exista dois pais diferentes entre si.
@@ -356,41 +374,45 @@ void selecaoRoleta(){
     for (i=0; i<TAMANHOPOPULACAO; i++)
         somaFitness += fitnessDaPopulacao[i];
 
-    printf ("-> Soma dos fitness: %d\n\n", somaFitness); 
+    printf ("-> Soma dos fitness: %d\n\n", somaFitness);
 
-    cont = 0;
     for (k=0; k<QUANTIDADEPAIS; k++){
-        // Roda a roleta (sorteia um numero aleatorio)
-        numeroSorteado = (rand()%somaFitness);
-        printf("NUMERO SORTEADO: %d\n", numeroSorteado);
+        do{
+            cont = 0;
+            // Roda a roleta (sorteia um numero aleatorio)
+            numeroSorteado = (rand()%somaFitness);
+            printf("NUMERO SORTEADO: %d\n", numeroSorteado);
 
-        // Seleciona um pai
-        fitnessAcumulado = 0;
-        for (i=0; (i<TAMANHOPOPULACAO) && (fitnessAcumulado <= numeroSorteado); i++){
-            fitnessAcumulado += fitnessDaPopulacao[i];
-            if (fitnessAcumulado > numeroSorteado){
-                for (j=0; j<TAMANHOTABULEIRO; j++)
-                    pais[k][j] = populacaoAtual[i][j];
+            // Seleciona um pai
+            fitnessAcumulado = 0;
+            for (i=0; (i<TAMANHOPOPULACAO) && (fitnessAcumulado <= numeroSorteado); i++){
+                fitnessAcumulado += fitnessDaPopulacao[i];
+                if (fitnessAcumulado > numeroSorteado){
+                    for (j=0; j<TAMANHOTABULEIRO; j++)
+                        pais[k][j] = populacaoAtual[i][j];
+                }
             }
-        }
-            
-        // Mostra o pai sorteado
-        printf ("Pai %d: ", k+1);
-        for (i=0; i<TAMANHOTABULEIRO; i++){
-            printf ("%d ", pais[k][i]);
-        }
-        printf ("\n");
-    }
-    // Verifica se os pais são iguais
-    if (k>1){
-        for (i=0; i<TAMANHOTABULEIRO; i++){
-            if (pais[0][i] == pais[1][i])
-                cont++;
-        }
-    }
 
-    if (cont == TAMANHOTABULEIRO)
-        printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
+            // Verifica se os pais são iguais
+            if (k>1){
+                for (i=0; i<TAMANHOTABULEIRO; i++){
+                    if (pais[0][i] == pais[1][i])
+                        cont++;
+                }
+            }
+
+            if (cont == TAMANHOTABULEIRO){
+                printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
+            } 
+            // Mostra o pai sorteado
+            else{
+                printf ("Pai %d: ", k+1);
+                for (i=0; i<TAMANHOTABULEIRO; i++)
+                    printf ("%d", pais[k][i]);
+            }
+            printf ("\n");
+        } while(cont == TAMANHOTABULEIRO);
+    }
 }
 
 /*
@@ -425,7 +447,7 @@ void selecaoTorneio(){
             //for (j=0; j/,i; j++){
                 //while (individuo[i] == individuo[j])
                     //individuo[i] = (rand()%TAMANHOPOPULACAO);
-            //} 
+            //}
 
             fitnessTorneio[i] = fitnessDaPopulacao[individuo[i]];
             printf("%d: individuo %d selecionado: ", i+1, individuo[i]+1);
@@ -467,5 +489,6 @@ void selecaoTorneio(){
         }
         printf ("\n");
     }
+
 }
 
