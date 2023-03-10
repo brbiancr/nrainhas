@@ -8,21 +8,25 @@
 #define QUANTIDADETORNEIOS 4
 #define QUANTIDADEINDIVIDUOSPORTORNEIO 4
 #define QUANTIDADEPAIS 2
+#define TAXAELITISMO 2
 
 // Variáveis globais
 int **populacaoAtual;
 int **proximaPopulacao;
 int *fitnessDaPopulacao;
 int **individuosTorneio;
-int **pais;
+int **pai;
 int *fitnessTorneio;
 int **tabuleiro;
 
 // Funções
 void alocaMemoria();
+void cruzamentoDoisPontos();
+void cruzamentoUmPonto();
+void elitismo();
 void fitness();
 void inicializaPopulacao();
-void mostraTabueliro();
+void mostraTabuleiro();
 void ordenaPopulacao();
 void ordenaTorneio();
 void posicionaRainhas();
@@ -40,6 +44,9 @@ int main(){
     //selecaoAleatoria();
     //selecaoTorneio();
     selecaoRoleta();
+    elitismo();
+    cruzamentoUmPonto();
+    //cruzamentoDoisPontos();
 
     return 0;
 }
@@ -64,9 +71,9 @@ void alocaMemoria(){
     proximaPopulacao = (int**) malloc(sizeof(int*) * TAMANHOPOPULACAO);
     fitnessDaPopulacao = (int*) malloc(sizeof(int) * TAMANHOPOPULACAO);
     individuosTorneio = (int**) malloc(sizeof(int*) * QUANTIDADEINDIVIDUOSPORTORNEIO);
-    pais = (int**) malloc(sizeof(int*) * QUANTIDADEPAIS);
+    pai = (int**) malloc(sizeof(int*) * QUANTIDADEPAIS);
     fitnessTorneio = (int*) malloc(sizeof(int) * QUANTIDADEINDIVIDUOSPORTORNEIO);
-    tabuleiro = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
+    tabuleiro = (int**) malloc(sizeof(int*) * TAMANHOTABULEIRO);
 
     for (i=0; i<TAMANHOPOPULACAO; i++){
         populacaoAtual[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
@@ -77,10 +84,133 @@ void alocaMemoria(){
         individuosTorneio[i] = (int*) malloc(sizeof(int*) * TAMANHOTABULEIRO);
 
     for (i=0; i<QUANTIDADEPAIS; i++)
-        pais[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
+        pai[i] = (int*) malloc(sizeof(int) * TAMANHOTABULEIRO);
 
     for (i=0; i<TAMANHOTABULEIRO; i++)
         tabuleiro[i] = malloc(sizeof(int) * TAMANHOTABULEIRO);
+}
+
+/*
+    ----------------------
+    cruzamentoDoisPontos()
+    ----------------------
+
+    São selecionados dois pontos de corte aleatórios nos individuos pais.
+    Recombina os dois pais gerando (um ou dois) novos filhos.
+*/
+void cruzamentoDoisPontos(){
+    int i;
+    int corte1, corte2;
+    int filho[2][TAMANHOTABULEIRO];
+
+    do{
+        corte1 = rand() % TAMANHOTABULEIRO;
+        corte2 = rand() % TAMANHOTABULEIRO;
+    } while (corte1 == corte2 && (corte1 == TAMANHOTABULEIRO || corte2 == TAMANHOTABULEIRO) );
+    
+    printf ("Ponto de corte 1: %d\n", corte1);
+    printf ("Ponto de corte 2: %d\n", corte2);
+   
+    if (corte1 > corte2){
+        for (i=0; i<corte2; i++){
+            filho[1][i] = pai[1][i];
+            filho[2][i] = pai[2][i];
+        }
+        for (i=corte2; i<corte1; i++){
+            filho[1][i] = pai[2][i];
+            filho[2][i] = pai[1][i];
+        }
+        for (i=corte1; i<TAMANHOTABULEIRO; i++){
+            filho[1][i] = pai[1][i];
+            filho[2][i] = pai[2][i];
+        }
+    }
+    else {
+        for (i=0; i<corte1; i++){
+            filho[1][i] = pai[1][i];
+            filho[2][i] = pai[2][i];
+        }
+        for (i=corte1; i<corte2; i++){
+            filho[1][i] = pai[2][i];
+            filho[2][i] = pai[1][i];
+        }
+        for (i=corte2; i<TAMANHOTABULEIRO; i++){
+            filho[1][i] = pai[1][i];
+            filho[2][i] = pai[2][i];
+        }
+    }
+
+    // Mostra filhos (Não ta mostrando isso)
+    for (i=0; i<TAMANHOTABULEIRO; i++){
+        printf ("%d ", filho[1][i]);
+    }
+    printf ("\n");
+
+    for (i=0; i<TAMANHOTABULEIRO; i++){
+        printf ("%d ", filho[2][i]);
+    }
+    printf ("\n");
+
+}
+
+/*
+    -------------------
+    cruzamentoUmPonto()
+    -------------------
+
+    Seleciona aleatóriamente um ponto de corte nos individuos pais.
+    Recombina os dois pais gerando (um ou dois) novos filhos.
+*/
+void cruzamentoUmPonto(){
+    int i;
+    int corte;
+    int filho[2][TAMANHOTABULEIRO];     
+    
+    do{
+        corte = rand()% TAMANHOTABULEIRO;
+    } while (corte == TAMANHOTABULEIRO);
+
+    printf ("Ponto de corte: %d\n", corte);
+
+    for (i=0; i<corte; i++){
+        filho[1][i] = pai[1][i];
+        filho[2][i] = pai[2][i];
+    }
+
+    for (i=corte; i<TAMANHOTABULEIRO; i++){
+        filho[1][i] = pai[2][i];
+        filho[2][i] = pai[1][i];
+    }
+
+    // Verificar se precisa da população intermediária
+    for (i=0; i<TAMANHOTABULEIRO; i++){
+        proximaPopulacao[TAXAELITISMO][i] = filho[1][i];    
+        proximaPopulacao[TAXAELITISMO+1][i] = filho[2][i];
+    }
+
+    for (i=0; i<TAMANHOTABULEIRO; i++)
+        printf ("%d ", filho[1][i]);
+    printf ("\n");
+
+    for (i=0; i<TAMANHOTABULEIRO; i++)
+        printf ("%d ", filho[2][i]);
+    printf ("\n");
+
+
+}
+
+/*
+    ----------
+    elitismo()
+    ----------
+
+    Copia para proximaPopulacao uma quantidade TAXAELITISMO dos individuos com maior fitness da populacaoAtual
+*/
+void elitismo(){
+    int i;
+
+    for (i=0; i<TAXAELITISMO; i++)
+        proximaPopulacao[i] = populacaoAtual[TAMANHOPOPULACAO-i];
 }
 
 /*
@@ -92,14 +222,14 @@ void alocaMemoria(){
 */
 void fitness(){
     int i, j, k, l, m;
-    int linhaDaRainha, fitnessRainha, colisao;
+    int fitnessRainha, colisao;
     int auxiliar1, auxiliar2;
 
     for (i=0; i<TAMANHOPOPULACAO; i++){
         fitnessDaPopulacao[i]= 0 ;
         printf ("--Individuo %d\n\n", i+1);
 
-        posicionaRainhas(i, linhaDaRainha);
+        posicionaRainhas(i);
 
         mostraTabuleiro();
 
@@ -305,8 +435,9 @@ void ordenaTorneio(){
     0 indica posição vazia
     1 indica Rainhas
 */
-void posicionaRainhas(int individuo, int linhaDaRainha){
+void posicionaRainhas(int individuo){
     int i, j;
+    int linhaDaRainha;
 
     for (i=0; i<TAMANHOTABULEIRO; i++){
         for (j=0; j<TAMANHOTABULEIRO; j++){
@@ -337,8 +468,8 @@ void selecaoAleatoria(){
             individuo = (rand()%TAMANHOPOPULACAO);
             printf ("Individuo escolhido para pai %d: individuo %d\n",i+1, individuo+1);
             for (j=0; j<TAMANHOTABULEIRO; j++){
-                pais[i][j] = populacaoAtual[individuo][j];
-                printf("%d ", pais[i][j]);
+                pai[i][j] = populacaoAtual[individuo][j];
+                printf("%d ", pai[i][j]);
             }
             printf("\n");
         }
@@ -346,7 +477,7 @@ void selecaoAleatoria(){
 
         if (i>1){
             for (i=0; i<TAMANHOTABULEIRO; i++){
-                if (pais[0][i] == pais[1][i])
+                if (pai[0][i] == pai[1][i])
                     cont++;
             }
         }
@@ -389,14 +520,14 @@ void selecaoRoleta(){
                 fitnessAcumulado += fitnessDaPopulacao[i];
                 if (fitnessAcumulado > numeroSorteado){
                     for (j=0; j<TAMANHOTABULEIRO; j++)
-                        pais[k][j] = populacaoAtual[i][j];
+                        pai[k][j] = populacaoAtual[i][j];
                 }
             }
 
             // Verifica se os pais são iguais
             if (k>1){
                 for (i=0; i<TAMANHOTABULEIRO; i++){
-                    if (pais[0][i] == pais[1][i])
+                    if (pai[0][i] == pai[1][i])
                         cont++;
                 }
             }
@@ -408,7 +539,7 @@ void selecaoRoleta(){
             else{
                 printf ("Pai %d: ", k+1);
                 for (i=0; i<TAMANHOTABULEIRO; i++)
-                    printf ("%d", pais[k][i]);
+                    printf ("%d", pai[k][i]);
             }
             printf ("\n");
         } while(cont == TAMANHOTABULEIRO);
@@ -466,8 +597,8 @@ void selecaoTorneio(){
         // Seleciona o individuo com maior fitness para ser o pai
         printf("Pai %d selecionado: ", k+1);
         for (i=0; i<TAMANHOTABULEIRO; i++){
-            pais[k][i] = individuosTorneio[QUANTIDADEINDIVIDUOSPORTORNEIO-1][i];
-            printf("%d ", pais[k][i]);
+            pai[k][i] = individuosTorneio[QUANTIDADEINDIVIDUOSPORTORNEIO-1][i];
+            printf("%d ", pai[k][i]);
         }
         printf("\n\n");
     }
@@ -475,7 +606,7 @@ void selecaoTorneio(){
     // Verifica se os pais sao iguais
     if (k>1){
         for (i=0; i<TAMANHOTABULEIRO; i++){
-            if (pais[0][i] == pais[1][i])
+            if (pai[0][i] == pai[1][i])
                 cont1++;
         }
     }
@@ -484,8 +615,8 @@ void selecaoTorneio(){
         printf ("PAIS IGUAIS, SELECIONE PAIS DIFERENTES!\n\n");
         printf ("Pai 2: ");
         for (i=0; i<TAMANHOTABULEIRO; i++){
-            pais[1][i] = individuosTorneio[QUANTIDADEINDIVIDUOSPORTORNEIO-2][i];
-            printf ("%d ", pais[1][i]);
+            pai[1][i] = individuosTorneio[QUANTIDADEINDIVIDUOSPORTORNEIO-2][i];
+            printf ("%d ", pai[1][i]);
         }
         printf ("\n");
     }
